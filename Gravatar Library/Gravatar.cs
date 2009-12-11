@@ -17,7 +17,7 @@ namespace FX.Utility
         public int Size = 48;
         public Image Image = null;
         public int CacheDays = 6;
-        public bool IgnoreCache = false;
+        public bool DisableCache = false;
 
         public Gravatar(string Email, int Size)
         {
@@ -29,7 +29,7 @@ namespace FX.Utility
         {
             if (this.Email == string.Empty) return;
 
-            if (!this.IgnoreCache) this.Image = GetCacheImage(this.Email, this.Size);
+            if (!this.DisableCache) this.Image = GetCacheImage(this.Email, this.Size);
             if (this.Image == null)
             {
                 try
@@ -44,13 +44,13 @@ namespace FX.Utility
                     if (date > new DateTime(1988, 1, 1))
                     {
                         this.Image = Image.FromStream(response.GetResponseStream());
-                        SetCacheImage(this.Image, this.Email, this.Size);
+                        if (!this.DisableCache) SetCacheImage(this.Image, this.Email, this.Size);
                     }
                 }
                 catch { }
 
                 // in case it failed, get from cache but ignore date
-                if (this.Image == null) this.Image = GetCacheImage(this.Email, this.Size, true);
+                if (this.Image == null && !this.DisableCache) this.Image = GetCacheImage(this.Email, this.Size, true);
             }
 
             if (this.AsyncImageRetrieved != null)
